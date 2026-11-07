@@ -27,7 +27,8 @@ const runningProcesses = new Map();
 function startService({ name, dir, port }) {
   const servicePath = path.resolve(__dirname, dir);
 
-  const child = spawn("node", ["index.js"], {
+  // Use --experimental-require-module to allow jwks-rsa to require jose ESM on Node 20/22
+  const child = spawn("node", ["--experimental-require-module", "index.js"], {
     cwd: servicePath,
     stdio: "inherit",
     shell: true,
