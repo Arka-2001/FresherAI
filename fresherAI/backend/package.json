@@ -1,13 +1,12 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
-  "license": "ISC",
-  "author": "",
+  "description": "FresherAI Backend Orchestrator",
   "type": "module",
-  "main": "index.js",
+  "main": "start.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "install:all": "npm install && npm --prefix gateway install && npm --prefix services/auth install && npm --prefix services/billing install && npm --prefix services/interview install && npm --prefix services/resume install && npm --prefix services/roadmap install",
+    "start": "node start.js"
   },
   "dependencies": {
     "ioredis": "^5.11.1"
