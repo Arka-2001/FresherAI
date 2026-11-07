@@ -7,12 +7,11 @@ dotenv.config()
 const app = express()
 app.use(express.json())
 
-const PORT = process.env.PORT || 6004
+const PORT = Number(process.env.PORT) || 8004
 
 app.use("/",roadmapRouter)
 
-app.listen(PORT , ()=>{
-    console.log(`Roadmap-service Started on ${PORT}`)
+app.listen(PORT, "0.0.0.0", ()=>{
+    console.log(`✅ Roadmap-service Started on ${PORT}`)
     connectDB()
-    
 })

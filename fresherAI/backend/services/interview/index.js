@@ -8,17 +8,15 @@ const app = express()
 
 app.use(express.json())
 
-const PORT = process.env.PORT || 6003
+const PORT = Number(process.env.PORT) || 8003
 
 app.get("/" , (req,res)=>{
     res.send("Hello from Interview-service")
 })
 
-
 app.use("/",interviewRouter)
 
-
-app.listen(PORT , ()=>{
-    console.log(`Interview-service Started on ${PORT}`)
+app.listen(PORT, "0.0.0.0", ()=>{
+    console.log(`✅ Interview-service Started on ${PORT}`)
     connectDB()
 })

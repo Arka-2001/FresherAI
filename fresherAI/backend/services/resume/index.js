@@ -9,8 +9,7 @@ const app = express()
 
 app.use(express.json())
 
-
-const PORT = process.env.PORT || 6002
+const PORT = Number(process.env.PORT) || 8002
 
 app.get("/" , (req,res)=>{
     res.send("Hello from Resume-service")
@@ -18,9 +17,7 @@ app.get("/" , (req,res)=>{
 
 app.use("/",resumeRouter)
 
-
-
-app.listen(PORT , ()=>{
-    console.log(`Resume-service Started on ${PORT}`)
+app.listen(PORT, "0.0.0.0", ()=>{
+    console.log(`✅ Resume-service Started on ${PORT}`)
     connectDB()
 })

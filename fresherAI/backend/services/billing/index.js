@@ -8,7 +8,7 @@ dotenv.config()
 const app = express()
 app.use(express.json())
 
-const PORT = process.env.PORT || 6005
+const PORT = Number(process.env.PORT) || 8005
 
 app.get("/",(req,res)=>{
     res.send("Hello from Billing-service")
@@ -16,8 +16,7 @@ app.get("/",(req,res)=>{
 
 app.use("/",billingRouter)
 
-app.listen(PORT , ()=>{
-    console.log(`Billing-service Started on ${PORT}`)
+app.listen(PORT, "0.0.0.0", ()=>{
+    console.log(`✅ Billing-service Started on ${PORT}`)
     connectDB()
-    
 })
