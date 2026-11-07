@@ -39,15 +39,45 @@ app.use(cookieParser())
 
 const PORT = process.env.PORT || 6000
 
+const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || "http://127.0.0.1:8001"
+const RESUME_SERVICE_URL = process.env.RESUME_SERVICE_URL || "http://127.0.0.1:8002"
+const INTERVIEW_SERVICE_URL = process.env.INTERVIEW_SERVICE_URL || "http://127.0.0.1:8003"
+const ROADMAP_SERVICE_URL = process.env.ROADMAP_SERVICE_URL || "http://127.0.0.1:8004"
+const BILLING_SERVICE_URL = process.env.BILLING_SERVICE_URL || "http://127.0.0.1:8005"
+
 app.get("/" , (req,res)=>{
     res.send("Hello from Gateway")
 })
 
-app.use("/api/auth" , proxy(process.env.AUTH_SERVICE_URL))
-app.use("/api/resume" ,isAuth, proxyWithHeaders(process.env.RESUME_SERVICE_URL, { parseReqBody: false }))
-app.use("/api/interview",isAuth ,proxyWithHeaders(process.env.INTERVIEW_SERVICE_URL))
-app.use("/api/roadmap",isAuth ,proxyWithHeaders(process.env.ROADMAP_SERVICE_URL))
-app.use("/api/billing",isAuth ,proxyWithHeaders(process.env.BILLING_SERVICE_URL))
+const handleProxyError = (serviceName) => (err, res, next) => {
+    console.error(`❌ [GATEWAY] Failed to connect to ${serviceName}:`, err.message)
+    res.status(502).json({
+        success: false,
+        message: `${serviceName} service unavailable: ${err.message}`
+    })
+}
+
+app.use("/api/auth" , proxy(AUTH_SERVICE_URL, {
+    proxyErrorHandler: handleProxyError("Auth")
+}))
+
+app.use("/api/resume" ,isAuth, proxyWithHeaders(RESUME_SERVICE_URL, { 
+    parseReqBody: false,
+    proxyErrorHandler: handleProxyError("Resume")
+}))
+
+app.use("/api/interview",isAuth ,proxyWithHeaders(INTERVIEW_SERVICE_URL, {
+    proxyErrorHandler: handleProxyError("Interview")
+}))
+
+app.use("/api/roadmap",isAuth ,proxyWithHeaders(ROADMAP_SERVICE_URL, {
+    proxyErrorHandler: handleProxyError("Roadmap")
+}))
+
+app.use("/api/billing",isAuth ,proxyWithHeaders(BILLING_SERVICE_URL, {
+    proxyErrorHandler: handleProxyError("Billing")
+}))
+
 app.use("/api/me",isAuth,getCurrentUser)
 
 app.listen(PORT , ()=>{

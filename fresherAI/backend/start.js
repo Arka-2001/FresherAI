@@ -22,9 +22,9 @@ console.log("=========================================");
 console.log("🚀 Starting FresherAI Backend Services...");
 console.log("=========================================");
 
-const runningProcesses = [];
+const runningProcesses = new Map();
 
-services.forEach(({ name, dir, port }) => {
+function startService({ name, dir, port }) {
   const servicePath = path.resolve(__dirname, dir);
 
   const child = spawn("node", ["index.js"], {
@@ -34,26 +34,37 @@ services.forEach(({ name, dir, port }) => {
     env: {
       ...process.env,
       PORT: port,
-      AUTH_SERVICE_URL: "http://localhost:8001",
-      RESUME_SERVICE_URL: "http://localhost:8002",
-      INTERVIEW_SERVICE_URL: "http://localhost:8003",
-      ROADMAP_SERVICE_URL: "http://localhost:8004",
-      BILLING_SERVICE_URL: "http://localhost:8005",
+      AUTH_SERVICE_URL: "http://127.0.0.1:8001",
+      RESUME_SERVICE_URL: "http://127.0.0.1:8002",
+      INTERVIEW_SERVICE_URL: "http://127.0.0.1:8003",
+      ROADMAP_SERVICE_URL: "http://127.0.0.1:8004",
+      BILLING_SERVICE_URL: "http://127.0.0.1:8005",
     },
   });
 
-  runningProcesses.push(child);
+  runningProcesses.set(name, child);
 
   child.on("error", (err) => {
     console.error(`❌ [${name}] failed to start:`, err);
   });
 
   child.on("exit", (code) => {
+    runningProcesses.delete(name);
     if (code !== 0 && code !== null) {
-      console.error(`⚠️ [${name}] process exited with code ${code}`);
+      console.error(`⚠️ [${name}] process exited with code ${code}. Restarting in 3 seconds...`);
+      setTimeout(() => startService({ name, dir, port }), 3000);
     }
   });
-});
+}
+
+// Start microservices first
+services.filter(s => s.name !== "GATEWAY").forEach(startService);
+
+// Start Gateway after 1 second so microservices have bound to their ports
+setTimeout(() => {
+  const gateway = services.find(s => s.name === "GATEWAY");
+  if (gateway) startService(gateway);
+}, 1000);
 
 const cleanShutdown = () => {
   console.log("\n🛑 Stopping all services...");
@@ -67,4 +78,3 @@ const cleanShutdown = () => {
 
 process.on("SIGINT", cleanShutdown);
 process.on("SIGTERM", cleanShutdown);
-
