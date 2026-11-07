@@ -1,6 +1,6 @@
-
 import { initializeApp } from "firebase/app";
-import {getAuth, GoogleAuthProvider} from "firebase/auth"
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
+
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_APIKEY,
   authDomain: "fresherai-bf2f5.firebaseapp.com",
@@ -10,11 +10,12 @@ const firebaseConfig = {
   appId: "1:589884216888:web:aec4d91bdf34aea5aa78cd"
 };
 
-
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-const auth = getAuth(app)
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({
+  prompt: "select_account"
+});
 
-const provider = new GoogleAuthProvider()
-
-export {auth , provider}
+export { auth, provider };
